@@ -55,6 +55,9 @@ coverage.xml
 *.mo
 *.pot
 
+# VS Code Files
+.vscode
+
 # Django stuff:
 *.log
 local_settings.py
@@ -120,10 +123,21 @@ venv.bak/
 # mkdocs documentation
 /site
 
+#Eclipse / PyDev
+.project
+.pydevproject
+.pylintrc
+
 # mypy
 .mypy_cache/
 .dmypy.json
 dmypy.json
 
+#PyCharm IDEA
+.idea/*
+
 # Pyre type checker
 .pyre/
+
+# Mac OS
+**/.DS_Store

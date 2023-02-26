@@ -15,17 +15,24 @@ class EthereumRealTimeAnalytics:
             f"{KafkaConfig.KAFKA_TOPIC_PREFIX}_{Constants.ETHEREUM_BLOCKS_FILE}"
         )
 
-        moving_avg_dataframe = blocks_dataframe.withColumn(
-            "moving_avg",
-            func.avg("transaction_count").over(
-                Window.partitionBy("number").rowsBetween(
-                    Window.currentRow, ApplicationConfig.MOVING_AVERAGE_WINDOW_SIZE
-                )
+        blocks_dataframe = blocks_dataframe.withColumn(
+            "block_total", func.sum("transaction_count").over(Window.partitionBy("number").orderBy("timestamp"))
+        ).withColumn(
+            "moving_sum_n_blocks",
+            func.sum("transaction_count").over(
+                Window.partitionBy("number")
+                .orderBy("timestamp")
+                .rowsBetween(ApplicationConfig.MOVING_AVERAGE_WINDOW_SIZE, Window.currentRow)
             ),
         )
 
-        moving_avg_dataframe = moving_avg_dataframe.select(
-            moving_avg_dataframe.number.alias("block_number"), moving_avg_dataframe.moving_avg
+        blocks_dataframe = blocks_dataframe.withColumn(
+            "moving_avg_n_blocks",
+            func.round((blocks_dataframe.moving_sum_n_blocks / blocks_dataframe.block_total) * 100, 2),
+        )
+
+        moving_avg_dataframe = blocks_dataframe.select(
+            blocks_dataframe.number.alias("block_number"), blocks_dataframe.timestamp, blocks_dataframe.moving_avg
         ).distinct()
 
         spark_utility.write_data_to_kafka_topic(

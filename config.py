@@ -9,7 +9,7 @@ class ApplicationConfig:
     INFURA_API_URL: str = "https://mainnet.infura.io/v3/{infura_api_key}/"
     INFURA_API_KEY: str = "27e776af494e445287357789f9a55e95"
 
-    MOVING_AVERAGE_WINDOW_SIZE = 5
+    MOVING_AVERAGE_WINDOW_SIZE = -5
 
 
 @dataclass
